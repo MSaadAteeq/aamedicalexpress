@@ -100,7 +100,13 @@ const sendAdminNotification = async ({ subject, eventType, details = {} }) => {
     to: recipients,
     subject,
     html: `
-      <div style="margin: 0; background: #f8fafc; padding: 24px 12px; font-family: Inter, Arial, sans-serif;">
+      <div style="display: none; max-height: 0; overflow: hidden;">
+        ${escapeHtml(eventTitle)} alert from PMT Member.
+      </div>
+      <div style="margin: 0; background: #f8fafc; padding: 24px 12px; font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;">
+        <style>
+          @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+        </style>
         <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width: 600px; margin: 0 auto; border-collapse: collapse;">
           <tr>
             <td style="background: linear-gradient(135deg, #0f172a 0%, #1d4ed8 100%); color: #ffffff; padding: 20px 24px; border-radius: 14px 14px 0 0;">

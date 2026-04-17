@@ -104,7 +104,6 @@ const createRide = async (req, res) => {
     subject: "New ride request submitted",
     eventType: "ride_request_created",
     details: {
-      rideId: ride._id.toString().slice(-8),
       rider: req.user.name,
       tripType: ride.tripType,
       route: `${ride.pickupLocation} -> ${ride.dropoffLocation}`,
@@ -239,7 +238,7 @@ const updateRideStatus = async (req, res) => {
     subject: "Ride status updated",
     eventType: "ride_status_updated",
     details: {
-      rideId: ride._id.toString().slice(-8),
+      route: `${ride.pickupLocation} -> ${ride.dropoffLocation}`,
       status: `${previousStatus} -> ${status}`,
       updatedBy: req.user.name || req.user.email,
     },
