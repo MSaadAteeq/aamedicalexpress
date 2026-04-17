@@ -4,7 +4,7 @@ Full-stack web app for booking and managing medical transportation rides.
 
 ## Tech Stack
 
-- Frontend: Next.js (React) + Tailwind CSS
+- Frontend: React.js (Vite) + Tailwind CSS
 - Backend: Node.js + Express (MVC architecture)
 - Database: MongoDB + Mongoose
 - Authentication: JWT
@@ -12,8 +12,8 @@ Full-stack web app for booking and managing medical transportation rides.
 ## Project Structure
 
 ```text
-client/          # Next.js frontend
-server/          # Express backend
+frontend/        # React frontend (Vite)
+backend/         # Express backend
   src/
     config/
     controllers/
@@ -26,15 +26,15 @@ server/          # Express backend
 
 1. Install dependencies (already split by app):
    - Root: `npm install`
-   - Frontend: `npm install --prefix client`
-   - Backend: `npm install --prefix server`
+   - Frontend: `npm install --prefix frontend`
+   - Backend: `npm install --prefix backend`
 2. Configure environment:
    - Copy `.env.example` to `.env` and fill values.
-   - Copy `client/.env.local.example` to `client/.env.local`.
+   - Copy `frontend/.env.local.example` to `frontend/.env.local`.
 3. Run both services:
    - `npm run dev`
 
-Frontend runs on `http://localhost:3000` and backend on `http://localhost:5000`.
+Frontend runs on `http://localhost:5173` and backend on `http://localhost:5000`.
 
 ## API Routes
 
@@ -64,7 +64,7 @@ Frontend runs on `http://localhost:3000` and backend on `http://localhost:5000`.
 
 ## Tests
 
-- Run backend tests: `npm test --prefix server`
+- Run backend tests: `npm test --prefix backend`
 - Includes:
   - unit test for JWT token utility
   - integration-style API tests for auth/profile and ride status workflow
