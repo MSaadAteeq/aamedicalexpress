@@ -110,6 +110,7 @@ const createRide = async (req, res) => {
       tripType: ride.tripType,
       route: `${ride.pickupLocation} -> ${ride.dropoffLocation}`,
       scheduledFor: ride.dateTime.toISOString(),
+      notes: ride.notes || "N/A",
     },
   }).catch((error) => {
     console.error("Failed to send ride request notification:", error.message);
@@ -246,6 +247,7 @@ const updateRideStatus = async (req, res) => {
       riderPhone: rider?.phone || "N/A",
       route: `${ride.pickupLocation} -> ${ride.dropoffLocation}`,
       status: `${previousStatus} -> ${status}`,
+      notes: ride.notes || "N/A",
       updatedBy: req.user.name || req.user.email,
     },
   }).catch((error) => {
