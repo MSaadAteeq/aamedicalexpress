@@ -17,6 +17,7 @@ const createEmergencyRideRequest = async (req, res) => {
     details: {
       riderName: `${request.firstName} ${request.lastName}`,
       phone: request.phone,
+      riderEmail: request.email || "N/A",
       tripType: request.tripType,
       mobilityType: request.mobilityType,
     },

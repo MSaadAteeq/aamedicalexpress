@@ -41,6 +41,45 @@ const prettifyKey = (key) =>
 const normalizeDetails = (details = {}) =>
   Object.entries(details).filter(([, value]) => value !== undefined && value !== null && value !== "");
 
+const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+const toReadableDateTime = (value) => {
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  const day = String(date.getUTCDate()).padStart(2, "0");
+  const month = monthNames[date.getUTCMonth()];
+  const year = date.getUTCFullYear();
+  const minutes = String(date.getUTCMinutes()).padStart(2, "0");
+  const hour24 = date.getUTCHours();
+  const period = hour24 >= 12 ? "PM" : "AM";
+  const hour12 = hour24 % 12 || 12;
+  const hours = String(hour12).padStart(2, "0");
+
+  return `${day}-${month}-${year} ${hours}:${minutes} ${period}`;
+};
+
+const maybeFormatDateValue = (key, value) => {
+  if (value instanceof Date) {
+    return toReadableDateTime(value);
+  }
+
+  if (typeof value !== "string") {
+    return value;
+  }
+
+  const looksIsoDate = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(value);
+  const keySuggestsDate = /(date|time|scheduled)/i.test(key);
+
+  if (!looksIsoDate && !keySuggestsDate) {
+    return value;
+  }
+
+  return toReadableDateTime(value);
+};
+
 const formatDetailsHtml = (details = {}) => {
   const rows = normalizeDetails(details);
   if (!rows.length) {
@@ -57,7 +96,7 @@ const formatDetailsHtml = (details = {}) => {
         </tr>
         <tr>
           <td style="padding: 0 0 10px; color: #0f172a; font-size: 15px; font-weight: 600;">
-            ${escapeHtml(value)}
+            ${escapeHtml(maybeFormatDateValue(key, value))}
           </td>
         </tr>
       `
@@ -68,7 +107,7 @@ const formatDetailsHtml = (details = {}) => {
 const formatDetailsText = (details = {}) => {
   const rows = normalizeDetails(details);
   if (!rows.length) return "- No additional details.";
-  return rows.map(([key, value]) => `- ${prettifyKey(key)}: ${value}`).join("\n");
+  return rows.map(([key, value]) => `- ${prettifyKey(key)}: ${maybeFormatDateValue(key, value)}`).join("\n");
 };
 
 const sendAdminNotification = async ({ subject, eventType, details = {} }) => {
@@ -85,11 +124,7 @@ const sendAdminNotification = async ({ subject, eventType, details = {} }) => {
 
   const resend = new Resend(apiKey);
   const fromAddress = process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
-  const timestamp = new Date().toLocaleString("en-US", {
-    dateStyle: "medium",
-    timeStyle: "short",
-    timeZone: "UTC",
-  });
+  const timestamp = toReadableDateTime(new Date());
   const eventLabel = eventType || "system_activity";
   const eventTitle = eventTitles[eventLabel] || eventTitles.system_activity;
   const detailsHtml = formatDetailsHtml(details);

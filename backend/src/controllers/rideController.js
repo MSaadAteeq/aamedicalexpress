@@ -105,6 +105,8 @@ const createRide = async (req, res) => {
     eventType: "ride_request_created",
     details: {
       rider: req.user.name,
+      riderEmail: req.user.email,
+      riderPhone: req.user.phone,
       tripType: ride.tripType,
       route: `${ride.pickupLocation} -> ${ride.dropoffLocation}`,
       scheduledFor: ride.dateTime.toISOString(),
@@ -217,6 +219,7 @@ const updateRideStatus = async (req, res) => {
   if (!ride) {
     return res.status(404).json({ message: "Ride not found." });
   }
+  const rider = await User.findById(ride.userId).select("_id name email phone");
 
   const workflow = {
     pending: ["confirmed"],
@@ -238,6 +241,9 @@ const updateRideStatus = async (req, res) => {
     subject: "Ride status updated",
     eventType: "ride_status_updated",
     details: {
+      rider: rider?.name || "Unknown",
+      riderEmail: rider?.email || "N/A",
+      riderPhone: rider?.phone || "N/A",
       route: `${ride.pickupLocation} -> ${ride.dropoffLocation}`,
       status: `${previousStatus} -> ${status}`,
       updatedBy: req.user.name || req.user.email,
