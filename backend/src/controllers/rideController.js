@@ -1,6 +1,7 @@
 const Ride = require("../models/Ride");
 const User = require("../models/User");
 const { Types } = require("mongoose");
+const { sendAdminNotification } = require("../utils/adminNotifier");
 
 const buildAdminHistoryFilter = async ({ status, search, startDate, endDate }) => {
   const filter = {};
@@ -97,6 +98,24 @@ const createRide = async (req, res) => {
     dropoffLocation: req.body.dropoffLocation,
     dateTime: req.body.dateTime,
     notes: req.body.notes || "",
+  });
+
+  sendAdminNotification({
+    subject: "New ride request submitted",
+    eventType: "ride_request_created",
+    details: {
+      rideId: ride._id.toString(),
+      userId: req.user.userId,
+      userName: req.user.name,
+      userEmail: req.user.email,
+      tripType: ride.tripType,
+      mobilityType: ride.mobilityType,
+      pickupLocation: ride.pickupLocation,
+      dropoffLocation: ride.dropoffLocation,
+      dateTime: ride.dateTime.toISOString(),
+    },
+  }).catch((error) => {
+    console.error("Failed to send ride request notification:", error.message);
   });
 
   return res.status(201).json({
@@ -210,6 +229,7 @@ const updateRideStatus = async (req, res) => {
     completed: [],
   };
 
+  const previousStatus = ride.status;
   if (!workflow[ride.status].includes(status)) {
     return res.status(400).json({
       message: `Invalid status transition from ${ride.status} to ${status}.`,
@@ -218,6 +238,21 @@ const updateRideStatus = async (req, res) => {
 
   ride.status = status;
   await ride.save();
+
+  sendAdminNotification({
+    subject: "Ride status updated",
+    eventType: "ride_status_updated",
+    details: {
+      rideId: ride._id.toString(),
+      changedByUserId: req.user.userId,
+      changedByName: req.user.name,
+      changedByEmail: req.user.email,
+      fromStatus: previousStatus,
+      toStatus: status,
+    },
+  }).catch((error) => {
+    console.error("Failed to send ride status notification:", error.message);
+  });
 
   return res.status(200).json({
     message: "Ride status updated successfully.",

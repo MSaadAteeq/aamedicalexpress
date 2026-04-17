@@ -1,6 +1,7 @@
 const bcrypt = require("bcryptjs");
 const User = require("../models/User");
 const generateToken = require("../utils/generateToken");
+const { sendAdminNotification } = require("../utils/adminNotifier");
 
 const getRoleForNewUser = (email) => {
   const adminEmails =
@@ -39,6 +40,20 @@ const register = async (req, res) => {
 
   const token = generateToken(user._id.toString());
 
+  sendAdminNotification({
+    subject: "New user registered",
+    eventType: "user_registered",
+    details: {
+      userId: user._id.toString(),
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+      role: user.role,
+    },
+  }).catch((error) => {
+    console.error("Failed to send registration notification:", error.message);
+  });
+
   return res.status(201).json({
     message: "Registration successful.",
     token,
@@ -60,6 +75,19 @@ const login = async (req, res) => {
   }
 
   const token = generateToken(user._id.toString());
+
+  sendAdminNotification({
+    subject: "User login detected",
+    eventType: "user_login",
+    details: {
+      userId: user._id.toString(),
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    },
+  }).catch((error) => {
+    console.error("Failed to send login notification:", error.message);
+  });
 
   return res.status(200).json({
     message: "Login successful.",
@@ -87,6 +115,19 @@ const updateProfile = async (req, res) => {
   user.name = name ?? user.name;
   user.phone = phone ?? user.phone;
   await user.save();
+
+  sendAdminNotification({
+    subject: "User profile updated",
+    eventType: "user_profile_updated",
+    details: {
+      userId: user._id.toString(),
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+    },
+  }).catch((error) => {
+    console.error("Failed to send profile update notification:", error.message);
+  });
 
   return res.status(200).json({
     message: "Profile updated successfully.",

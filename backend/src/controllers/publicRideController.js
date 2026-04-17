@@ -1,4 +1,5 @@
 const EmergencyRideRequest = require("../models/EmergencyRideRequest");
+const { sendAdminNotification } = require("../utils/adminNotifier");
 
 const createEmergencyRideRequest = async (req, res) => {
   const request = await EmergencyRideRequest.create({
@@ -8,6 +9,22 @@ const createEmergencyRideRequest = async (req, res) => {
     email: req.body.email || "",
     tripType: req.body.tripType,
     mobilityType: req.body.mobilityType,
+  });
+
+  sendAdminNotification({
+    subject: "Emergency ride request submitted",
+    eventType: "emergency_ride_request",
+    details: {
+      requestId: request._id.toString(),
+      firstName: request.firstName,
+      lastName: request.lastName,
+      phone: request.phone,
+      email: request.email || "N/A",
+      tripType: request.tripType,
+      mobilityType: request.mobilityType,
+    },
+  }).catch((error) => {
+    console.error("Failed to send emergency ride notification:", error.message);
   });
 
   return res.status(201).json({

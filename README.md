@@ -61,6 +61,9 @@ Frontend runs on `http://localhost:5173` and backend on `http://localhost:5000`.
 - Frontend includes form validation, loading states, icons, and toast notifications.
 - Emergency form is available on a dedicated route: `/emergency-ride`.
 - Admin role is enabled when a registered email exists in `ADMIN_EMAILS`.
+- Optional admin activity email alerts are sent via Resend when `RESEND_API_KEY` is configured.
+- `ADMIN_ACTIVITY_EMAILS` controls where alerts are sent (comma-separated). Defaults to `saadateeq456@gmail.com` if not set.
+- Supported alert events: member registration/login/profile updates, emergency ride requests, ride requests, and ride status updates.
 
 ## Tests
 
