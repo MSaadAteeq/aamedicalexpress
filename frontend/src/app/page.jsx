@@ -17,22 +17,22 @@ export default function Home() {
         </p>
         <div className="mt-6 flex flex-wrap items-center gap-3">
           <Link
-            href="/emergency-ride"
+            to="/emergency-ride"
             className="inline-flex items-center gap-2 rounded-xl bg-red-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-red-600"
           >
             <Ambulance size={16} />
             Emergency Ride Request
           </Link>
           {isAuthenticated ? (
-            <Link href="/dashboard" className="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-slate-100">
+            <Link to="/dashboard" className="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-slate-100">
               Go to Dashboard
             </Link>
           ) : (
             <>
-              <Link href="/signup" className="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-slate-100">
+              <Link to="/signup" className="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-slate-100">
                 Create Account
               </Link>
-              <Link href="/login" className="rounded-xl border border-white/40 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10">
+              <Link to="/login" className="rounded-xl border border-white/40 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10">
                 Sign In
               </Link>
             </>
@@ -70,7 +70,7 @@ export default function Home() {
           <p className="mt-1 text-sm text-slate-600">Use our emergency form for urgent requests without creating an account.</p>
         </div>
         <Link
-          href="/emergency-ride"
+          to="/emergency-ride"
           className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700"
         >
           <Ambulance size={16} />

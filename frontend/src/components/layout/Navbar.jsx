@@ -37,7 +37,7 @@ export default function Navbar() {
   return (
     <header className="border-b border-slate-200 bg-white/90 backdrop-blur">
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-        <Link href="/" className="flex items-center gap-2 text-xl font-bold text-slate-900">
+        <Link to="/" className="flex items-center gap-2 text-xl font-bold text-slate-900">
           <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white">
             <Ambulance size={16} />
           </span>
@@ -57,7 +57,7 @@ export default function Navbar() {
           {visibleNavItems.map((item) => (
               <Link
                 key={item.href}
-                href={item.href}
+                to={item.href}
                 className={clsx(
                   "inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium transition",
                   pathname === item.href ? "bg-blue-50 text-blue-700" : "text-slate-600 hover:text-slate-900"
@@ -76,7 +76,7 @@ export default function Navbar() {
               Sign Out
             </button>
           ) : (
-            <Link href="/login" className="rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white">
+            <Link to="/login" className="rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white">
               Login
             </Link>
           )}
@@ -89,7 +89,7 @@ export default function Navbar() {
             {visibleNavItems.map((item) => (
               <Link
                 key={item.href}
-                href={item.href}
+                to={item.href}
                 className={clsx(
                   "inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition",
                   pathname === item.href ? "bg-blue-50 text-blue-700" : "text-slate-700 hover:bg-slate-50"
@@ -109,7 +109,7 @@ export default function Navbar() {
                 Sign Out
               </button>
             ) : (
-              <Link href="/login" className="rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white">
+              <Link to="/login" className="rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white">
                 Login
               </Link>
             )}

@@ -89,7 +89,7 @@ export default function AuthForm({ mode = "login" }) {
 
       <p className="mt-4 text-sm text-slate-600">
         {isSignup ? "Already have an account?" : "Need an account?"}{" "}
-        <Link href={isSignup ? "/login" : "/signup"} className="font-semibold text-blue-600 hover:text-blue-700">
+        <Link to={isSignup ? "/login" : "/signup"} className="font-semibold text-blue-600 hover:text-blue-700">
           {isSignup ? "Sign in" : "Sign up"}
         </Link>
       </p>

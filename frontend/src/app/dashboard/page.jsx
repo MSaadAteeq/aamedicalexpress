@@ -77,16 +77,16 @@ export default function DashboardPage() {
           Manage bookings, track ride status updates, and coordinate upcoming appointments in one place.
         </p>
         <div className="mt-6 flex flex-wrap items-center gap-3">
-          <Link href="/request-ride" className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-900">
+          <Link to="/request-ride" className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-900">
             <Ambulance size={16} />
             Request New Ride
           </Link>
-          <Link href="/edit-profile" className="inline-flex items-center gap-2 rounded-xl border border-white/40 px-4 py-2 text-sm font-semibold text-white">
+          <Link to="/edit-profile" className="inline-flex items-center gap-2 rounded-xl border border-white/40 px-4 py-2 text-sm font-semibold text-white">
             <CircleUserRound size={16} />
             Edit Profile
           </Link>
           {user?.role === "admin" ? (
-            <Link href="/admin/dashboard" className="inline-flex items-center gap-2 rounded-xl border border-white/40 px-4 py-2 text-sm font-semibold text-white">
+            <Link to="/admin/dashboard" className="inline-flex items-center gap-2 rounded-xl border border-white/40 px-4 py-2 text-sm font-semibold text-white">
               <ShieldCheck size={16} />
               Dispatch Console
             </Link>
@@ -117,15 +117,15 @@ export default function DashboardPage() {
         <article className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
           <h3 className="text-base font-semibold text-slate-900">Quick Actions</h3>
           <div className="mt-4 grid gap-3">
-            <Link href="/request-ride" className="inline-flex items-center justify-between rounded-xl border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50">
+            <Link to="/request-ride" className="inline-flex items-center justify-between rounded-xl border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50">
               Request a Ride
               <ArrowRight size={14} />
             </Link>
-            <Link href={tripHistoryHref} className="inline-flex items-center justify-between rounded-xl border border-slate-200 px-3 py-2 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-50">
+            <Link to={tripHistoryHref} className="inline-flex items-center justify-between rounded-xl border border-slate-200 px-3 py-2 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-50">
               My Trip History
               <ClipboardList size={14} />
             </Link>
-            <Link href="/edit-profile" className="inline-flex items-center justify-between rounded-xl border border-slate-200 px-3 py-2 text-left text-sm font-medium text-slate-700">
+            <Link to="/edit-profile" className="inline-flex items-center justify-between rounded-xl border border-slate-200 px-3 py-2 text-left text-sm font-medium text-slate-700">
               Edit Profile
               <CircleUserRound size={14} />
             </Link>
