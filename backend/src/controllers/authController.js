@@ -44,10 +44,8 @@ const register = async (req, res) => {
     subject: "New user registered",
     eventType: "user_registered",
     details: {
-      userId: user._id.toString(),
       name: user.name,
       email: user.email,
-      phone: user.phone,
       role: user.role,
     },
   }).catch((error) => {
@@ -80,10 +78,8 @@ const login = async (req, res) => {
     subject: "User login detected",
     eventType: "user_login",
     details: {
-      userId: user._id.toString(),
       name: user.name,
       email: user.email,
-      role: user.role,
     },
   }).catch((error) => {
     console.error("Failed to send login notification:", error.message);
@@ -120,10 +116,9 @@ const updateProfile = async (req, res) => {
     subject: "User profile updated",
     eventType: "user_profile_updated",
     details: {
-      userId: user._id.toString(),
       name: user.name,
       email: user.email,
-      phone: user.phone,
+      updatedField: "name/phone",
     },
   }).catch((error) => {
     console.error("Failed to send profile update notification:", error.message);

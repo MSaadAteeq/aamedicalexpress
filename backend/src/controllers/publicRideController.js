@@ -15,11 +15,9 @@ const createEmergencyRideRequest = async (req, res) => {
     subject: "Emergency ride request submitted",
     eventType: "emergency_ride_request",
     details: {
-      requestId: request._id.toString(),
-      firstName: request.firstName,
-      lastName: request.lastName,
+      requestId: request._id.toString().slice(-8),
+      riderName: `${request.firstName} ${request.lastName}`,
       phone: request.phone,
-      email: request.email || "N/A",
       tripType: request.tripType,
       mobilityType: request.mobilityType,
     },

@@ -104,15 +104,11 @@ const createRide = async (req, res) => {
     subject: "New ride request submitted",
     eventType: "ride_request_created",
     details: {
-      rideId: ride._id.toString(),
-      userId: req.user.userId,
-      userName: req.user.name,
-      userEmail: req.user.email,
+      rideId: ride._id.toString().slice(-8),
+      rider: req.user.name,
       tripType: ride.tripType,
-      mobilityType: ride.mobilityType,
-      pickupLocation: ride.pickupLocation,
-      dropoffLocation: ride.dropoffLocation,
-      dateTime: ride.dateTime.toISOString(),
+      route: `${ride.pickupLocation} -> ${ride.dropoffLocation}`,
+      scheduledFor: ride.dateTime.toISOString(),
     },
   }).catch((error) => {
     console.error("Failed to send ride request notification:", error.message);
@@ -243,12 +239,9 @@ const updateRideStatus = async (req, res) => {
     subject: "Ride status updated",
     eventType: "ride_status_updated",
     details: {
-      rideId: ride._id.toString(),
-      changedByUserId: req.user.userId,
-      changedByName: req.user.name,
-      changedByEmail: req.user.email,
-      fromStatus: previousStatus,
-      toStatus: status,
+      rideId: ride._id.toString().slice(-8),
+      status: `${previousStatus} -> ${status}`,
+      updatedBy: req.user.name || req.user.email,
     },
   }).catch((error) => {
     console.error("Failed to send ride status notification:", error.message);
