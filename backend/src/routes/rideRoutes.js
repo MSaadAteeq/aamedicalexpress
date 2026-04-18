@@ -27,7 +27,12 @@ router.post(
       .withMessage("Mobility type is invalid."),
     body("pickupLocation").trim().notEmpty().withMessage("Pickup location is required."),
     body("dropoffLocation").trim().notEmpty().withMessage("Drop-off location is required."),
-    body("dateTime").isISO8601().withMessage("A valid date/time is required."),
+    body("dateTime")
+      .notEmpty()
+      .withMessage("Date/time is required.")
+      .bail()
+      .isISO8601()
+      .withMessage("A valid date/time is required."),
     body("notes").optional().isLength({ max: 1000 }).withMessage("Notes are too long."),
     validateRequest,
   ],

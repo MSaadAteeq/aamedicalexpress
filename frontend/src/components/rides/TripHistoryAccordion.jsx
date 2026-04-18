@@ -87,19 +87,19 @@ export default function TripHistoryAccordion({ rides }) {
 
                   {isOpen ? (
                     <div className="space-y-2 border-t border-slate-200 px-4 py-3 text-sm text-slate-700">
-                      <p className="inline-flex items-center gap-1">
+                      <p className="flex items-center gap-1">
                         <MapPin size={14} />
                         Pickup: {ride.pickupLocation}
                       </p>
-                      <p className="inline-flex items-center gap-1">
+                      <p className="flex items-center gap-1">
                         <MapPin size={14} />
                         Drop-off: {ride.dropoffLocation}
                       </p>
-                      <p className="inline-flex items-center gap-1">
+                      <p className="flex items-center gap-1">
                         <Navigation size={14} />
                         Mobility: {mobilityTypeLabels[ride.mobilityType] || ride.mobilityType}
                       </p>
-                      <p className="inline-flex items-center gap-1">
+                      <p className="flex items-center gap-1">
                         <CircleEllipsis size={14} />
                         Trip Type: {tripTypeLabels[ride.tripType] || ride.tripType}
                       </p>

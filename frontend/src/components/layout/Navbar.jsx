@@ -71,7 +71,7 @@ export default function Navbar() {
             <button
               type="button"
               onClick={handleSignOut}
-              className="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition hover:text-slate-900"
+              className="cursor-pointer rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition hover:text-slate-900"
             >
               Sign Out
             </button>
@@ -104,7 +104,7 @@ export default function Navbar() {
               <button
                 type="button"
                 onClick={handleSignOut}
-                className="rounded-lg border border-slate-200 px-3 py-2 text-left text-sm font-medium text-slate-700"
+                className="cursor-pointer rounded-lg border border-slate-200 px-3 py-2 text-left text-sm font-medium text-slate-700"
               >
                 Sign Out
               </button>

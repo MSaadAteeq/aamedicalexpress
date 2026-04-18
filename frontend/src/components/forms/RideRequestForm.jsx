@@ -57,7 +57,14 @@ export default function RideRequestForm() {
         error={errors.dropoffLocation?.message}
         {...register("dropoffLocation")}
       />
-      <Input id="dateTime" label="Date & Time *" type="datetime-local" error={errors.dateTime?.message} {...register("dateTime")} />
+      <Input
+        id="dateTime"
+        label="Date & Time *"
+        type="datetime-local"
+        required
+        error={errors.dateTime?.message}
+        {...register("dateTime")}
+      />
       <Select id="tripType" label="Trip Type *" options={tripTypeOptions} error={errors.tripType?.message} {...register("tripType")} />
       <Select
         id="mobilityType"
