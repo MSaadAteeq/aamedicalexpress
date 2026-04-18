@@ -8,6 +8,7 @@ const {
   getAdminTripHistory,
   exportAdminTripHistoryCsv,
   updateRideStatus,
+  streamRideEvents,
 } = require("../controllers/rideController");
 const { protect, authorizeRoles } = require("../middleware/authMiddleware");
 const validateRequest = require("../middleware/validateRequest");
@@ -41,6 +42,7 @@ router.post(
 
 router.get("/", getUserRides);
 router.get("/stats", getRideStats);
+router.get("/stream", streamRideEvents);
 router.get("/admin/dashboard", authorizeRoles("admin"), getAdminDashboard);
 router.get("/admin/history", authorizeRoles("admin"), getAdminTripHistory);
 router.get("/admin/history/export", authorizeRoles("admin"), exportAdminTripHistoryCsv);

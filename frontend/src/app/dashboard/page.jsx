@@ -1,8 +1,9 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Ambulance, ArrowRight, CircleUserRound, ClipboardList, LogOut, ShieldCheck } from "lucide-react";
 import toast from "react-hot-toast";
 import api from "@/lib/api";
+import { createRideEventStream } from "@/lib/realtime";
 import { useAuth } from "@/context/AuthContext";
 import RideCard from "@/components/rides/RideCard";
 import StatCard from "@/components/dashboard/StatCard";
@@ -17,7 +18,7 @@ const emptyStats = {
 
 export default function DashboardPage() {
   const navigate = useNavigate();
-  const { user, isAuthenticated, isAuthLoading, logout } = useAuth();
+  const { user, token, isAuthenticated, isAuthLoading, logout } = useAuth();
   const tripHistoryHref = user?.role === "admin" ? "/admin/trip-history" : "/trip-history";
 
   const [rides, setRides] = useState([]);
@@ -35,12 +36,14 @@ export default function DashboardPage() {
     }
   }, [isAuthenticated, isAuthLoading, navigate]);
 
-  useEffect(() => {
-    const fetchDashboardData = async () => {
+  const fetchDashboardData = useCallback(
+    async ({ silent = false } = {}) => {
       if (!isAuthenticated) return;
 
       try {
-        setIsLoadingData(true);
+        if (!silent) {
+          setIsLoadingData(true);
+        }
         const [ridesResponse, statsResponse] = await Promise.all([api.get("/rides"), api.get("/rides/stats")]);
         setRides(ridesResponse.data.rides || []);
         setStats(statsResponse.data || emptyStats);
@@ -51,14 +54,41 @@ export default function DashboardPage() {
           navigate("/login", { replace: true });
           return;
         }
-        toast.error("Could not load dashboard data.");
+        if (!silent) {
+          toast.error("Could not load dashboard data.");
+        }
       } finally {
-        setIsLoadingData(false);
+        if (!silent) {
+          setIsLoadingData(false);
+        }
       }
+    },
+    [isAuthenticated, logout, navigate]
+  );
+
+  useEffect(() => {
+    void fetchDashboardData();
+  }, [fetchDashboardData]);
+
+  useEffect(() => {
+    if (!isAuthenticated || !token) return undefined;
+
+    const stream = createRideEventStream(token);
+    if (!stream) return undefined;
+
+    const onRideEvent = () => {
+      void fetchDashboardData({ silent: true });
     };
 
-    fetchDashboardData();
-  }, [isAuthenticated, logout, navigate]);
+    stream.addEventListener("ride_created", onRideEvent);
+    stream.addEventListener("ride_updated", onRideEvent);
+
+    return () => {
+      stream.removeEventListener("ride_created", onRideEvent);
+      stream.removeEventListener("ride_updated", onRideEvent);
+      stream.close();
+    };
+  }, [fetchDashboardData, isAuthenticated, token]);
 
   const recentRides = useMemo(() => rides.slice(0, 5), [rides]);
 

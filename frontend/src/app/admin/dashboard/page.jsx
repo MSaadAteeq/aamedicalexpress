@@ -1,9 +1,10 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { ArrowRight, BellRing, CheckCircle2, Clock3, MapPin, ShieldAlert, Truck } from "lucide-react";
 import toast from "react-hot-toast";
 import { format } from "date-fns";
 import api from "@/lib/api";
+import { createRideEventStream } from "@/lib/realtime";
 import { useAuth } from "@/context/AuthContext";
 import {
   mobilityTypeLabels,
@@ -24,7 +25,7 @@ const defaultStats = {
 
 export default function AdminDashboardPage() {
   const navigate = useNavigate();
-  const { isAuthenticated, isAuthLoading, user } = useAuth();
+  const { isAuthenticated, isAuthLoading, token, user } = useAuth();
   const [stats, setStats] = useState(defaultStats);
   const [rides, setRides] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -40,26 +41,56 @@ export default function AdminDashboardPage() {
     }
   }, [isAuthenticated, isAuthLoading, navigate, user]);
 
-  const loadData = async () => {
-    try {
-      const response = await api.get("/rides/admin/dashboard");
-      setStats(response.data.stats || defaultStats);
-      setRides(response.data.allRides || []);
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Could not load dispatch dashboard.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const loadData = useCallback(
+    async ({ silent = false } = {}) => {
+      try {
+        if (!silent) {
+          setIsLoading(true);
+        }
+        const response = await api.get("/rides/admin/dashboard");
+        setStats(response.data.stats || defaultStats);
+        setRides(response.data.allRides || []);
+      } catch (error) {
+        if (!silent) {
+          toast.error(error.response?.data?.message || "Could not load dispatch dashboard.");
+        }
+      } finally {
+        if (!silent) {
+          setIsLoading(false);
+        }
+      }
+    },
+    []
+  );
 
   useEffect(() => {
     if (isAuthenticated && user?.role === "admin") {
       const timer = setTimeout(() => {
-        void loadData();
+        void loadData({ silent: false });
       }, 0);
       return () => clearTimeout(timer);
     }
-  }, [isAuthenticated, user?.role]);
+  }, [isAuthenticated, loadData, user?.role]);
+
+  useEffect(() => {
+    if (!isAuthenticated || user?.role !== "admin" || !token) return undefined;
+
+    const stream = createRideEventStream(token);
+    if (!stream) return undefined;
+
+    const onRideEvent = () => {
+      void loadData({ silent: true });
+    };
+
+    stream.addEventListener("ride_created", onRideEvent);
+    stream.addEventListener("ride_updated", onRideEvent);
+
+    return () => {
+      stream.removeEventListener("ride_created", onRideEvent);
+      stream.removeEventListener("ride_updated", onRideEvent);
+      stream.close();
+    };
+  }, [isAuthenticated, loadData, token, user?.role]);
 
   const actionableRides = useMemo(
     () => rides.filter((ride) => ride.status === "pending" || ride.status === "confirmed"),

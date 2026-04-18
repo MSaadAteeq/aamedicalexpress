@@ -2,6 +2,13 @@ const Ride = require("../models/Ride");
 const User = require("../models/User");
 const { Types } = require("mongoose");
 const { sendAdminNotification } = require("../utils/adminNotifier");
+const {
+  addRideStreamClient,
+  removeRideStreamClient,
+  sendStreamConnected,
+  broadcastRideCreated,
+  broadcastRideUpdated,
+} = require("../utils/rideRealtime");
 
 const buildAdminHistoryFilter = async ({ status, search, startDate, endDate }) => {
   const filter = {};
@@ -115,6 +122,8 @@ const createRide = async (req, res) => {
   }).catch((error) => {
     console.error("Failed to send ride request notification:", error.message);
   });
+
+  broadcastRideCreated(ride);
 
   return res.status(201).json({
     message: "Ride request submitted successfully.",
@@ -254,9 +263,34 @@ const updateRideStatus = async (req, res) => {
     console.error("Failed to send ride status notification:", error.message);
   });
 
+  broadcastRideUpdated(ride);
+
   return res.status(200).json({
     message: "Ride status updated successfully.",
     ride,
+  });
+};
+
+const streamRideEvents = (req, res) => {
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache, no-transform");
+  res.setHeader("Connection", "keep-alive");
+  res.flushHeaders?.();
+
+  const clientId = addRideStreamClient({
+    userId: req.user.userId,
+    role: req.user.role,
+    res,
+  });
+  sendStreamConnected(res);
+
+  const heartbeat = setInterval(() => {
+    res.write(": keep-alive\n\n");
+  }, 25000);
+
+  req.on("close", () => {
+    clearInterval(heartbeat);
+    removeRideStreamClient(clientId);
   });
 };
 
@@ -268,4 +302,5 @@ module.exports = {
   getAdminTripHistory,
   exportAdminTripHistoryCsv,
   updateRideStatus,
+  streamRideEvents,
 };

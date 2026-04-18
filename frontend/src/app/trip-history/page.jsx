@@ -1,14 +1,15 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ClipboardList } from "lucide-react";
 import toast from "react-hot-toast";
 import api from "@/lib/api";
+import { createRideEventStream } from "@/lib/realtime";
 import { useAuth } from "@/context/AuthContext";
 import TripHistoryAccordion from "@/components/rides/TripHistoryAccordion";
 
 export default function TripHistoryPage() {
   const navigate = useNavigate();
-  const { isAuthenticated, isAuthLoading, logout, user } = useAuth();
+  const { isAuthenticated, isAuthLoading, logout, token, user } = useAuth();
   const [rides, setRides] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -21,12 +22,14 @@ export default function TripHistoryPage() {
     }
   }, [isAuthenticated, isAuthLoading, navigate, user?.role]);
 
-  useEffect(() => {
-    const fetchRideHistory = async () => {
+  const fetchRideHistory = useCallback(
+    async ({ silent = false } = {}) => {
       if (!isAuthenticated || user?.role === "admin") return;
 
       try {
-        setIsLoading(true);
+        if (!silent) {
+          setIsLoading(true);
+        }
         const response = await api.get("/rides");
         setRides(response.data.rides || []);
       } catch (error) {
@@ -35,14 +38,41 @@ export default function TripHistoryPage() {
           navigate("/login", { replace: true });
           return;
         }
-        toast.error("Unable to load trip history.");
+        if (!silent) {
+          toast.error("Unable to load trip history.");
+        }
       } finally {
-        setIsLoading(false);
+        if (!silent) {
+          setIsLoading(false);
+        }
       }
+    },
+    [isAuthenticated, logout, navigate, user?.role]
+  );
+
+  useEffect(() => {
+    void fetchRideHistory();
+  }, [fetchRideHistory]);
+
+  useEffect(() => {
+    if (!isAuthenticated || user?.role === "admin" || !token) return undefined;
+
+    const stream = createRideEventStream(token);
+    if (!stream) return undefined;
+
+    const onRideEvent = () => {
+      void fetchRideHistory({ silent: true });
     };
 
-    fetchRideHistory();
-  }, [isAuthenticated, logout, navigate, user?.role]);
+    stream.addEventListener("ride_created", onRideEvent);
+    stream.addEventListener("ride_updated", onRideEvent);
+
+    return () => {
+      stream.removeEventListener("ride_created", onRideEvent);
+      stream.removeEventListener("ride_updated", onRideEvent);
+      stream.close();
+    };
+  }, [fetchRideHistory, isAuthenticated, token, user?.role]);
 
   if (isAuthLoading || (!isAuthenticated && !isAuthLoading)) {
     return <div className="mx-auto max-w-6xl px-4 py-10 text-sm text-slate-600">Loading trip history...</div>;

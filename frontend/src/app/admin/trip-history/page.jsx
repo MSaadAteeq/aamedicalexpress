@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { CalendarDays, Clock3, Download, Search, ShieldCheck } from "lucide-react";
 import toast from "react-hot-toast";
 import api from "@/lib/api";
+import { createRideEventStream } from "@/lib/realtime";
 import { useAuth } from "@/context/AuthContext";
 import AdminTripHistoryAccordion from "@/components/rides/AdminTripHistoryAccordion";
 import Input from "@/components/ui/Input";
@@ -19,7 +20,7 @@ const PAGE_LIMIT = 20;
 
 export default function AdminTripHistoryPage() {
   const navigate = useNavigate();
-  const { isAuthenticated, isAuthLoading, user } = useAuth();
+  const { isAuthenticated, isAuthLoading, token, user } = useAuth();
   const [rides, setRides] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -96,6 +97,26 @@ export default function AdminTripHistoryPage() {
     }, 0);
     return () => clearTimeout(timer);
   }, [loadHistory]);
+
+  useEffect(() => {
+    if (!isAuthenticated || user?.role !== "admin" || !token) return undefined;
+
+    const stream = createRideEventStream(token);
+    if (!stream) return undefined;
+
+    const onRideEvent = () => {
+      void loadHistory({ page: 1, append: false });
+    };
+
+    stream.addEventListener("ride_created", onRideEvent);
+    stream.addEventListener("ride_updated", onRideEvent);
+
+    return () => {
+      stream.removeEventListener("ride_created", onRideEvent);
+      stream.removeEventListener("ride_updated", onRideEvent);
+      stream.close();
+    };
+  }, [isAuthenticated, loadHistory, token, user?.role]);
 
   useEffect(() => {
     if (!loadMoreRef.current) return undefined;
